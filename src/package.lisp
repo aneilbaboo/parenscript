@@ -64,6 +64,8 @@
    ;; compiler
    #:*js-target-version*
    #:ps
+   #:ps-async
+   #:ps*-async
    #:*parenscript-stream*
    #:ps-to-stream
    #:ps-doc

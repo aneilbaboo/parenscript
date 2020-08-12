@@ -292,6 +292,20 @@
   ((getprop (aref foobar 1) 'blorg) nil t)
   "foobar[1].blorg(null, true);")
 
+(fiveam:test ps-async-function-def ()
+  (fiveam:is
+    (string= (normalize-js-output "async function foo(a, b) {
+                                      return a * b;
+                                  };")
+            (normalize-js-output
+              (ps-async (defun foo (a b) (* a b)))))))
+
+(fiveam:test ps-async-function-calls ()
+  (fiveam:is
+    (string= (normalize-js-output "await foo(1, 2);")
+            (normalize-js-output
+              (ps-async (foo 1 2))))))
+
 (test-ps-js operator-expressions-1
   (* 1 2)
   "1 * 2;")

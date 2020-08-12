@@ -43,6 +43,7 @@
 (in-package #:parenscript)
 (named-readtables:in-readtable :parenscript)
 
+(defvar *ps-force-async* nil)
 (defvar *ps-print-pretty* t)
 (defvar *indent-num-spaces* 4)
 (defvar *js-string-delimiter* #\'
@@ -226,6 +227,9 @@ vice-versa.")
 (defun print-op (op)
   (psw (string-downcase op)))
 
+(defun print-await ()
+  (if *ps-force-async* (psw "await ")))
+
 (defprinter (ps-js:! ps-js:~ ps-js:++ ps-js:--) (x)
   (print-op op) (print-op-argument op x))
 
@@ -271,8 +275,9 @@ vice-versa.")
 (defprinter (ps-js:|,|) (&rest expressions)
   (print-comma-delimited-list expressions))
 
+
 (defprinter ps-js:funcall (fun-designator &rest args)
-  (print-op-argument op fun-designator)"("(print-comma-delimited-list args)")")
+  (print-await)(print-op-argument op fun-designator)"("(print-comma-delimited-list args)")")
 
 (defprinter ps-js:block (&rest statements)
   "{" (incf *indent-level*)
@@ -290,8 +295,8 @@ vice-versa.")
 
 (defun print-fun-def (name args body)
   (destructuring-bind (keyword name) (if (consp name) name `(function ,name))
-    (format *psw-stream* "~(~A~) ~:[~;~A~]("
-            keyword name (symbol-to-js-string name))
+    (format *psw-stream* "~A~(~A~) ~:[~;~A~]("
+            (if *ps-force-async* "async " "") keyword name (symbol-to-js-string name))
     (loop for (arg . remaining) on args do
         (psw (symbol-to-js-string arg)) (when remaining (psw ", ")))
     (psw ") ")

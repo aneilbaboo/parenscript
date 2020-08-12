@@ -81,6 +81,14 @@ string."
     (unless *parenscript-stream*
       (get-output-stream-string *psw-stream*))))
 
+(defmacro ps-async (&body body)
+  (let ((*ps-force-async* t))
+    (macroexpand `(ps ,@body))))
+
+(defun ps*-async (&rest body)
+  (let ((*ps-force-async* t))
+    (apply #'ps* body)))
+
 (defmacro with-blank-compilation-environment (&body body)
   `(let ((*ps-gensym-counter* 0)
          (*special-variables* nil))
